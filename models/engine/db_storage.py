@@ -56,30 +56,55 @@ class DBStorage:
             return db_dict
 
     def new(self, obj):
-        """add the object to the current database session"""
+        '''
+            Add object to current database session
+        '''
         self.__session.add(obj)
 
     def save(self):
-        """commit all changes of the current database session"""
+        '''
+            Commit all changes of current database session
+        '''
         self.__session.commit()
 
     def delete(self, obj=None):
-        """delete from the current database session obj if not None"""
+        '''
+            Delete from current database session
+        '''
         if obj is not None:
             self.__session.delete(obj)
 
     def reload(self):
-        """reloads data from the database"""
-        Base.metadata.create_all(self.__engine)
-        sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sess_factory)
-        self.__session = Session
-    
+        '''
+            Commit all changes of current database session
+        '''
+        self.__session = Base.metadata.create_all(self.__engine)
+        factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(factory)
+        self.__session = Session()
+
+    def get(self, cls, id):
+        """" A method to retrieve one object
+        grab_obj = self.all(cls).values()
+        for obj in grab_obj:
+            if obj.id == str(id):
+                return obj
+        return None
+        """
+        grab_obj = models.storage.all(cls)
+        for k, v in grab_obj.items():
+            getstr = cls + '.' + id
+            if k == getstr:
+                return (v)
+        return (None)
+
     def count(self, cls=None):
         """ A method to count the number of objects in storage """
         num_obj = models.storage.all(cls)
         return len(num_obj)
 
     def close(self):
-        """call remove() method on the private session attribute"""
-        self.__session.remove()
+        '''
+            Remove private session attribute
+        '''
+        self.__session.close()
